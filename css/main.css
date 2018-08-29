@@ -1,0 +1,233 @@
+header, body {
+    font-family: 'Special Elite', cursive;
+    /*transform-style: preserve-3d;*/
+    backface-visibility: hidden;
+}
+
+header {
+    color: #CCC;
+    text-align: center;
+}
+
+body {
+    background: #111;
+}
+
+table {
+}
+
+tr {
+    /*padding: 10px;*/
+}
+
+main {
+    /*perspective: 1000px;*/
+}
+
+.turn-count {
+    text-shadow: 0px 0px 20px green;
+}
+
+.title-card {
+    padding: 100px 0px 0px 0px;
+    box-sizing: border-box;
+    background: #111;
+    backface-visibility: hidden;
+    font-size: 4em;
+    color: #CCC;
+    text-shadow: 0px 0px 20px red;
+    transition: opacity 1s;
+    top: 0px;
+    left: 0px;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.title-card-visible {
+    z-index: 3;
+    opacity: 1;
+}
+
+.title-card-hidden {
+    z-index: -1;
+    opacity: 0;
+}
+
+.big-card-container {
+    min-height: 400px;
+    min-width: 400px;
+    max-height: 400px;
+    max-width: 400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.big-card {
+    height: inherit;
+    width: inherit;
+    min-height: 400px;
+    min-width: 400px;
+    max-height: 400px;
+    max-width: 400px;
+    /*border: 2px;*/
+    /*border-color: #DDD;*/
+    /*transform-style: preserve-3d;*/
+    box-sizing: border-box;
+}
+
+.big-card-back {
+    transition: opacity 1s;
+    backface-visibility: hidden;
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    min-height: 400px;
+    min-width: 400px;
+    max-height: 400px;
+    max-width: 400px;
+    box-sizing: border-box;
+    /*background-color: #000;*/
+    background: transparent;
+    border-radius: 10px;
+}
+
+.big-card-face {
+    transition: opacity 1s;
+    backface-visibility: hidden;
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    min-height: 400px;
+    min-width: 400px;
+    max-height: 400px;
+    max-width: 400px;
+    box-sizing: border-box;
+    /*background-color: #111;*/
+    background: transparent;
+}
+
+.game-board {
+    display: table;
+}
+
+.card-row {
+    display: table-row;
+    /*background-color: #444;*/
+}
+
+.card-container {
+    display: table-cell;
+    max-height: 100px;
+    max-width: 100px;
+    min-height: 100px;
+    min-width: 100px;
+    /*perspective: 1000px;*/
+    background: transparent;
+    border: 2px;
+    border-color: #DDD;
+    border-radius: 10px;
+}
+
+.card {
+    height: inherit;
+    width: inherit;
+    max-height: 100px;
+    max-width: 100px;
+    min-height: 100px;
+    min-width: 100px;
+    /*transform-style: preserve-3d;*/
+    box-sizing: border-box;
+
+}
+
+.card-back {
+    transition: opacity 1s;
+    /* background: #003; */
+    /*transform: rotateY(180deg);*/
+    background: transparent;
+    backface-visibility: hidden;
+    box-sizing: border-box;
+    position: absolute;
+    /*top: 0px;
+    left: 0px;*/
+    height: inherit;
+    width: inherit;
+    max-height: 100px;
+    max-width: 100px;
+    min-height: 100px;
+    min-width: 100px;
+    /*vertical-align: middle;*/
+    /*border: 2px;*/
+    line-height: 70px;
+    padding: 20px 10px 10px 10px;
+    font-size: 3em;
+    text-align: center;
+    color: #CCC;
+    text-shadow: 0px 0px 20px red;
+}
+
+.card-face {
+    transition: opacity 1s;
+    /* background: #300; */
+    background: transparent;
+    backface-visibility: hidden;
+    box-sizing: border-box;
+    position: absolute;
+    /*top: 0px;
+    left: 0px;*/
+    height: inherit;
+    width: inherit;
+    max-height: 100px;
+    max-width: 100px;
+    min-height: 100px;
+    min-width: 100px;
+    /*vertical-align: middle;*/
+    /*border: 2px;*/
+    line-height: 65px;
+    padding: 25px 10px 10px 10px;
+    font-size: 3em;
+    text-align: center;
+    color: #CCC;
+    text-shadow: 0px 0px 20px white;
+}
+
+
+
+
+
+.is-up {
+    z-index: 2;
+    opacity: 1;
+}
+
+.is-down {
+    z-index: 1;
+    opacity: 0;
+}
+
+.card.face-down, .big-card.face-down {
+    /*transform: rotateY(180deg);*/
+}
+
+.big-card-face h3 {
+    color: #CCC;
+    font-size: 3em;
+    margin: 0 auto;
+    text-align: center;
+    text-shadow: 0px 0px 20px green;
+    /*vertical-align: center;*/
+}
+
+.you-win {
+    min-height: 100px;
+    padding: 50px 0 0 0;
+}
+
+.click-here {
+    min-height: 200px;
+}
+
+
