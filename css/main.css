@@ -1,48 +1,79 @@
-header, body {
-    font-family: 'Special Elite', cursive;
-    /*transform-style: preserve-3d;*/
-    backface-visibility: hidden;
+/*
+For anything under 400px, we have to shrink things down a bit to accommodate.
+If we shrink down the cards to 80px x 80px, which isn't unreasonable, we can
+fit within a 320px screen width, which is TINYYYYYY.
+*/
+
+@media screen and (max-width: 400px) {
+    body,
+    html,
+    header,
+    main {
+        width: 320px;
+        min-width: 320px;
+    }
+    
+    .big-card-container,
+    .big-card,
+    .big-card-back,
+    .big-card-face {
+        height: 320px;
+        width: 320px;
+        min-height: 320px;
+        min-width: 320px;
+    }
+
+    .card-container,
+    .card,
+    .card-back,
+    .card-face {
+        height: 80px;
+        width: 80px;
+        min-height: 80px;
+        min-width: 80px;
+    }
 }
 
-header {
-    color: #CCC;
-    text-align: center;
+/*
+High-level styles
+*/
+
+body,
+html,
+header,
+main {
+    margin: 0 auto;
+}
+
+header, body {
+    font-family: 'Special Elite', cursive;
+    backface-visibility: hidden;
+    box-sizing: border-box;
 }
 
 body {
     background: #111;
 }
 
-table {
-}
-
-tr {
-    /*padding: 10px;*/
-}
-
-main {
-    /*perspective: 1000px;*/
-}
-
-.turn-count {
-    text-shadow: 0px 0px 20px green;
-}
+/*
+Title card
+*/
 
 .title-card {
-    padding: 100px 0px 0px 0px;
+    position: absolute;
     box-sizing: border-box;
-    background: #111;
     backface-visibility: hidden;
-    font-size: 4em;
-    color: #CCC;
-    text-shadow: 0px 0px 20px red;
-    transition: opacity 1s;
-    top: 0px;
-    left: 0px;
-    text-align: center;
+    top: 0;
+    left: 0;
     height: 100%;
     width: 100%;
-    position: absolute;
+    padding: 100px 0 0 0;
+    background: #111;
+    color: #CCC;
+    font-size: 3em;
+    text-shadow: 0 0 20px red;
+    text-align: center;
+    transition: opacity 1s;
 }
 
 .title-card-visible {
@@ -55,58 +86,99 @@ main {
     opacity: 0;
 }
 
-.big-card-container {
+/*
+Header
+*/
+
+header {
+    color: #CCC;
+    text-align: center;
+}
+
+.turn-count,
+.time-elapsed {
+    text-shadow: 0 0 20px green;
+}
+
+/*
+Big Card (High-level)
+*/
+
+.big-card-container,
+.big-card,
+.big-card-back,
+.big-card-face {
+    box-sizing: border-box;
+    background: transparent;
+    backface-visibility: hidden;
     min-height: 400px;
     min-width: 400px;
-    max-height: 400px;
-    max-width: 400px;
+}
+
+.big-card,
+.big-card-back,
+.big-card-face {
+    height: inherit;
+    width: inherit;
+}
+
+.big-card-back,
+.big-card-face {
+    position: absolute;
+    transition: opacity 1s;
+}
+
+/*
+Big Card
+*/
+
+.big-card-container {
     margin: 0 auto;
-    box-sizing: border-box;
-    border-radius: 10px;
+    height: 400px;
+    width: 400px;
 }
 
 .big-card {
+    /* placeholder */
+}
+
+/*
+Big Card Back (High-level)
+*/
+
+.card-container,
+.card,
+.card-back,
+.card-face {
+    box-sizing: border-box;
+    background: transparent;
+    backface-visibility: hidden;
+    min-height: 100px;
+    min-width: 100px;
+}
+
+.card,
+.card-back,
+.card-face {
     height: inherit;
     width: inherit;
-    min-height: 400px;
-    min-width: 400px;
-    max-height: 400px;
-    max-width: 400px;
-    /*border: 2px;*/
-    /*border-color: #DDD;*/
-    /*transform-style: preserve-3d;*/
-    box-sizing: border-box;
 }
+
+.card-back,
+.card-face {
+    position: absolute;
+    transition: opacity 1s;
+    font-size: 3em;
+    text-align: center;
+    color: #CCC;
+}
+
+/*
+Big Card Back - Game Board/(Small) Card
+*/
 
 .big-card-back {
-    transition: opacity 1s;
-    backface-visibility: hidden;
-    position: absolute;
-    height: inherit;
-    width: inherit;
-    min-height: 400px;
-    min-width: 400px;
-    max-height: 400px;
-    max-width: 400px;
-    box-sizing: border-box;
-    /*background-color: #000;*/
-    background: transparent;
-    border-radius: 10px;
-}
-
-.big-card-face {
-    transition: opacity 1s;
-    backface-visibility: hidden;
-    position: absolute;
-    height: inherit;
-    width: inherit;
-    min-height: 400px;
-    min-width: 400px;
-    max-height: 400px;
-    max-width: 400px;
-    box-sizing: border-box;
-    /*background-color: #111;*/
-    background: transparent;
+    /* placeholder */
 }
 
 .game-board {
@@ -115,88 +187,29 @@ main {
 
 .card-row {
     display: table-row;
-    /*background-color: #444;*/
 }
 
 .card-container {
     display: table-cell;
-    max-height: 100px;
-    max-width: 100px;
-    min-height: 100px;
-    min-width: 100px;
-    /*perspective: 1000px;*/
-    background: transparent;
-    border: 2px;
-    border-color: #DDD;
-    border-radius: 10px;
+    height: 100px;
+    width: 100px;
 }
 
 .card {
-    height: inherit;
-    width: inherit;
-    max-height: 100px;
-    max-width: 100px;
-    min-height: 100px;
-    min-width: 100px;
-    /*transform-style: preserve-3d;*/
-    box-sizing: border-box;
-
+    /* placeholder */
 }
 
 .card-back {
-    transition: opacity 1s;
-    /* background: #003; */
-    /*transform: rotateY(180deg);*/
-    background: transparent;
-    backface-visibility: hidden;
-    box-sizing: border-box;
-    position: absolute;
-    /*top: 0px;
-    left: 0px;*/
-    height: inherit;
-    width: inherit;
-    max-height: 100px;
-    max-width: 100px;
-    min-height: 100px;
-    min-width: 100px;
-    /*vertical-align: middle;*/
-    /*border: 2px;*/
     line-height: 70px;
     padding: 20px 10px 10px 10px;
-    font-size: 3em;
-    text-align: center;
-    color: #CCC;
-    text-shadow: 0px 0px 20px red;
+    text-shadow: 0 0 20px red;
 }
 
 .card-face {
-    transition: opacity 1s;
-    /* background: #300; */
-    background: transparent;
-    backface-visibility: hidden;
-    box-sizing: border-box;
-    position: absolute;
-    /*top: 0px;
-    left: 0px;*/
-    height: inherit;
-    width: inherit;
-    max-height: 100px;
-    max-width: 100px;
-    min-height: 100px;
-    min-width: 100px;
-    /*vertical-align: middle;*/
-    /*border: 2px;*/
     line-height: 65px;
     padding: 25px 10px 10px 10px;
-    font-size: 3em;
-    text-align: center;
-    color: #CCC;
-    text-shadow: 0px 0px 20px white;
+    text-shadow: 0 0 20px white;
 }
-
-
-
-
 
 .is-up {
     z-index: 2;
@@ -208,8 +221,12 @@ main {
     opacity: 0;
 }
 
-.card.face-down, .big-card.face-down {
-    /*transform: rotateY(180deg);*/
+/*
+Big Card Face (Game Win)
+*/
+
+.big-card-face {
+    /* placeholder */
 }
 
 .big-card-face h3 {
@@ -218,16 +235,17 @@ main {
     margin: 0 auto;
     text-align: center;
     text-shadow: 0px 0px 20px green;
-    /*vertical-align: center;*/
 }
 
 .you-win {
-    min-height: 100px;
+    min-height: 50px;
     padding: 50px 0 0 0;
+}
+
+.play-rating {
+    min-height: 50px;
 }
 
 .click-here {
     min-height: 200px;
 }
-
-
