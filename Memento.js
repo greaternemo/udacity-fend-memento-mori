@@ -4,12 +4,12 @@
 
 let Memento = {
     pageBody: null,
-    
+
     pageHeader: null,
-    
+
     turnCountZone: null,
     turnsTaken: null,
-    
+
     timeElapsedZone: null,
     startTime: null,
     lastTime: null,
@@ -30,14 +30,13 @@ let Memento = {
 Utility functions
 */
 
-function formatNum (aNum) {
+function formatNum(aNum) {
     // This formats a number as a 2-digit string.
     let formatted;
     if (aNum < 10) {
         formatted = '' + '0';
         formatted += aNum.toString();
-    }
-    else {
+    } else {
         formatted = aNum.toString();
     }
     return formatted;
@@ -50,16 +49,16 @@ Build The First Game
 */
 
 // Everything starts with buildTitleCard(), which we call at the end of this script.
-function buildTitleCard () {
+function buildTitleCard() {
     buildPageBody();
-    
+
     const titleZone = document.createDocumentFragment();
-    
+
     const titleCard = document.createElement('div');
     titleCard.classList.add('title-card');
     titleCard.classList.add('title-card-visible');
     titleCard.addEventListener('click', buildNewGame);
-    
+
     // Could these be p elements instead of divs?
     // Probably, but using divs gives me the formatting I want without needing to
     // spend more time formatting something I'm going to use once and then trash.
@@ -69,36 +68,36 @@ function buildTitleCard () {
     titleMyName.textContent = 'by adam boyd';
     const titleClick = document.createElement('div');
     titleClick.textContent = 'click to begin';
-    
+
     titleCard.appendChild(titleName);
     titleCard.appendChild(titleMyName);
     titleCard.appendChild(titleClick);
-    
+
     titleZone.appendChild(titleCard);
     Memento.pageMain.appendChild(titleZone);
 }
 
-function buildPageBody () {
+function buildPageBody() {
     Memento.pageBody = document.querySelector('body');
     const bodyParts = document.createDocumentFragment();
-    
+
     bodyParts.appendChild(buildFirstHeader());
     bodyParts.appendChild(buildFirstMain());
-    
+
     Memento.pageBody.appendChild(bodyParts);
-    
+
     Memento.pageHeader = document.querySelector('header');
     Memento.turnCountZone = document.querySelector('.turn-count');
     Memento.timeElapsedZone = document.querySelector('.time-elapsed');
     Memento.pageMain = document.querySelector('main');
 }
 
-function buildFirstHeader () {
+function buildFirstHeader() {
     const newHeader = document.createElement('header');
-    
+
     const gameInfo = document.createElement('div');
     gameInfo.id = 'game-info';
-    
+
     const turnCount = document.createElement('h3');
     turnCount.classList.add('turn-count');
     const timeElapsed = document.createElement('h3');
@@ -106,13 +105,13 @@ function buildFirstHeader () {
 
     gameInfo.appendChild(turnCount);
     gameInfo.appendChild(timeElapsed);
-    
+
     newHeader.appendChild(gameInfo);
-    
+
     return newHeader;
 }
 
-function buildFirstMain () {
+function buildFirstMain() {
     // I think this is really it here. Hm.
     const newMain = document.createElement('main');
     return newMain;
@@ -124,12 +123,12 @@ function buildFirstMain () {
 Build Every Game Beyond The First
 */
 
-function buildNewGame () {
+function buildNewGame() {
     // We don't have to do much right here anymore because a lot of the do-overs
     // are handled further down.
     Memento.turnsTaken = 0;
     Memento.lastTime = '00:00';
-    
+
     // We use sets here because they're much easier to use than arrays for things like
     // testing inclusion and guaranteeing exclusivity of the values we push inside.
     Memento.clickedCards = new Set();
@@ -138,12 +137,12 @@ function buildNewGame () {
     return drawTheGame(buildTheGame());
 }
 
-function buildTheGame () {
+function buildTheGame() {
     buildGameInfo();
     return buildBigCard();
 }
 
-function buildGameInfo () {
+function buildGameInfo() {
     Memento.turnCountZone.textContent = 'Turns taken: 0';
     Memento.timeElapsedZone.textContent = `Time elapsed: ${Memento.lastTime}`;
 
@@ -158,7 +157,7 @@ function buildGameInfo () {
     }, 1000);
 }
 
-function calculateTimeElapsed () {
+function calculateTimeElapsed() {
     const elapsed = Memento.timeElapsedZone;
     const timeStart = Memento.startTime;
     const timeNow = Math.floor(Date.now() / 1000);
@@ -174,30 +173,30 @@ function calculateTimeElapsed () {
     }
 }
 
-function redrawTimeElapsed () {
+function redrawTimeElapsed() {
     Memento.timeElapsedZone.textContent = `Time elapsed: ${Memento.lastTime}`;
 }
 
-function buildBigCard () {
+function buildBigCard() {
     const bigCardZone = document.createDocumentFragment();
-    
+
     const bigCardContainer = document.createElement('div');
     bigCardContainer.classList.add('big-card-container');
-    
+
     const bigCard = document.createElement('div');
     bigCard.classList.add('big-card');
-    
+
     bigCard.appendChild(buildBigCardBack());
     bigCard.appendChild(buildBigCardFace());
-    
+
     bigCardContainer.appendChild(bigCard);
-    
+
     bigCardZone.appendChild(bigCardContainer);
-    
+
     return bigCardZone;
 }
 
-function buildBigCardBack () {
+function buildBigCardBack() {
     const bigBack = buildGameBoard();
     bigBack.classList.add('big-card-back');
     bigBack.classList.add('game-board');
@@ -206,11 +205,11 @@ function buildBigCardBack () {
     return bigBack;
 }
 
-function buildGameBoard () {
+function buildGameBoard() {
     Memento.mainDeck = buildNewDeck();
-    
+
     let theBoard = document.createElement('div');
-    
+
     let rows = 0;
     let aRow;
     while (rows < 4) {
@@ -222,7 +221,7 @@ function buildGameBoard () {
     return theBoard;
 }
 
-function buildNewDeck () {
+function buildNewDeck() {
     /*
     These are our emojis.
     They were specifically chosen for browser compatibility.
@@ -255,7 +254,7 @@ function buildNewDeck () {
         String.fromCodePoint('0x1F5E1'),
         String.fromCodePoint('0x1F5E1'),
     ];
-    
+
     let shuffledDeck = [];
     let aCard;
     while (newDeck.length > 0) {
@@ -270,7 +269,7 @@ function buildNewDeck () {
     return shuffledDeck;
 }
 
-function buildCardRow (total, aRow) {
+function buildCardRow(total, aRow) {
     let cnt = 0;
     while (cnt < 4) {
         aRow.appendChild(buildGameCard((total * 4) + cnt));
@@ -279,48 +278,48 @@ function buildCardRow (total, aRow) {
     return aRow;
 }
 
-function buildGameCard (cNum) {
+function buildGameCard(cNum) {
     const newCard = document.createElement('div');
     let cardNum = formatNum(cNum);
-    
+
     newCard.id = 'card' + cardNum;
     newCard.classList.add('card-container');
-    
+
     const cardZone = document.createElement('div');
     cardZone.classList.add('card');
     newCard.addEventListener('click', handleCardFlip);
-    
+
     const cardBack = document.createElement('div');
     cardBack.classList.add('card-back');
     cardBack.classList.add('is-up');
     cardBack.textContent = '?';
     cardZone.appendChild(cardBack);
-    
+
     const cardFace = document.createElement('div');
     cardFace.classList.add('card-face');
     cardFace.classList.add('is-down');
     cardFace.textContent = Memento.mainDeck[cNum];
     cardZone.appendChild(cardFace);
-    
+
     newCard.appendChild(cardZone);
     return newCard;
 }
 
-function buildBigCardFace () {
+function buildBigCardFace() {
     const bigFace = document.createElement('div');
     bigFace.classList.add('big-card-face');
     bigFace.classList.add('is-down');
-    
+
     const youWin = document.createElement('h3');
     youWin.textContent = 'You win!';
     youWin.classList.add('you-win');
     const playRating = document.createElement('h3');
     playRating.textContent = '';
-    playRating.classList.add('play-rating');    
+    playRating.classList.add('play-rating');
     const restart = document.createElement('h3');
     restart.textContent = 'Click here to start a new game.';
     restart.classList.add('click-here');
-    
+
     bigFace.appendChild(youWin);
     bigFace.appendChild(playRating);
     bigFace.appendChild(restart);
@@ -328,14 +327,13 @@ function buildBigCardFace () {
     return bigFace;
 }
 
-function drawTheGame (bigCardZone) {
+function drawTheGame(bigCardZone) {
     if (!Memento.firstGame) {
         // If this isn't the first game, dump all the existing content.
         while (Memento.pageMain.hasChildNodes() === true) {
             Memento.pageMain.removeChild(Memento.pageMain.firstChild);
         }
-    }
-    else {
+    } else {
         // After we build all the game content, we fade out the title card.
         const titleCard = document.querySelector('.title-card');
         titleCard.classList.toggle('title-card-visible');
@@ -343,13 +341,13 @@ function drawTheGame (bigCardZone) {
 
         // Then we wait a second. Literally, 1000 ms.
         // Then we dump it, just blammo. We don't need it after this.
-        setTimeout( function () {
+        setTimeout(function() {
             Memento.pageMain.removeChild(document.querySelector('.title-card'));
             Memento.firstGame = false;
         }, 1000);
         // This works so well, I almost feel like I MUST BE doing something wrong.
     }
-    
+
     Memento.pageMain.appendChild(bigCardZone);
 }
 
@@ -359,11 +357,11 @@ function drawTheGame (bigCardZone) {
 Handling player interaction during the game
 */
 
-function handleCardFlip (cardEvent) {
+function handleCardFlip(cardEvent) {
     // Obv, we have to handle all the various cases
     eTarget = cardEvent.target.parentNode;
     eTargetParent = eTarget.parentNode;
-    
+
     /*
     A card conceptually has 3 states we track:
     A card can be solved or unsolved.
@@ -380,13 +378,13 @@ function handleCardFlip (cardEvent) {
     
     If there was a prettier way for me to draw a finite state machine in text, I would.
     */
-    
+
     // If they click in the margins, we don't handle that.
     // This is a failsafe in case of weirdness.
     if (!eTargetParent.id) {
         return;
     }
-    
+
     // What do we do if they click a card that is solved?
     // Nothing, it remains unclicked and face-up.
     if (Memento.solvedCards.has(eTargetParent.id)) {
@@ -400,7 +398,7 @@ function handleCardFlip (cardEvent) {
             Memento.clickedCards.add(eTargetParent.id);
             toggleFlippedState(eTarget);
         }
-        
+
         // ...and there is a face-up unsolved card?
         else if (Memento.clickedCards.size == 1) {
             // ...and it's the card we clicked?
@@ -458,16 +456,16 @@ function handleCardFlip (cardEvent) {
             }
         }
     }
-    
+
     Memento.turnCountZone.textContent = 'Turns taken: ' + Memento.turnsTaken.toString();
-    
+
     // then we check to see if the game is over.
     if (Memento.solvedCards.size === 16) {
         triggerGameWin();
     }
 }
 
-function toggleFlippedState (eTarget) {
+function toggleFlippedState(eTarget) {
     /* 
     This worked differently a fistful of edits ago.
     To get this dope fade-in/fade-out effect on click, we toggle the classes
@@ -483,7 +481,7 @@ function toggleFlippedState (eTarget) {
     eTarget.querySelector('.card-face').classList.toggle('is-down');
 }
 
-function triggerGameWin () {
+function triggerGameWin() {
     clearInterval(Memento.timeLoop);
     calculateRating();
     document.querySelector('.big-card-back').classList.toggle('is-up');
@@ -493,32 +491,30 @@ function triggerGameWin () {
     document.querySelector('.big-card-face').addEventListener('click', restartGame);
 }
 
-function calculateRating () {
+function calculateRating() {
     const playRating = document.querySelector('.play-rating');
     const litStar = String.fromCodePoint('0x2605');
     const fadedStar = String.fromCodePoint('0x2606');
-    
+
     let rating = '' + litStar;
     let star2;
     let star3;
     if (Memento.turnsTaken > 24) {
         star2 = fadedStar;
         star3 = fadedStar;
-    }
-    else if (Memento.turnsTaken > 16) {
+    } else if (Memento.turnsTaken > 16) {
         star2 = litStar;
         star3 = fadedStar;
-    }
-    else {
+    } else {
         star2 = litStar;
         star3 = litStar;
     }
-    
+
     rating += star2 + star3;
     playRating.textContent = rating;
 }
 
-function restartGame () {
+function restartGame() {
     buildNewGame();
 }
 
@@ -532,12 +528,10 @@ buildTitleCard();
 
 
 
-
-
 /*
-*
-*
-* Courtesy Spaces
-*
-*
-*/
+ *
+ *
+ * Courtesy Spaces
+ *
+ *
+ */

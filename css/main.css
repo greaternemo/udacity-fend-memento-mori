@@ -12,7 +12,6 @@ fit within a 320px screen width, which is TINYYYYYY.
         width: 320px;
         min-width: 320px;
     }
-    
     .big-card-container,
     .big-card,
     .big-card-back,
@@ -22,7 +21,6 @@ fit within a 320px screen width, which is TINYYYYYY.
         min-height: 320px;
         min-width: 320px;
     }
-
     .card-container,
     .card,
     .card-back,
@@ -45,7 +43,8 @@ main {
     margin: 0 auto;
 }
 
-header, body {
+header,
+body {
     font-family: 'Special Elite', cursive;
     backface-visibility: hidden;
     box-sizing: border-box;
