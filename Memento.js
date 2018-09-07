@@ -9,11 +9,15 @@ let Memento = {
 
     turnCountZone: null,
     turnsTaken: null,
+    tookTurn: null,
 
     timeElapsedZone: null,
     startTime: null,
     lastTime: null,
     timeLoop: null,
+
+    liveRatingZone: null,
+    gameRating: null,
 
     pageMain: null,
     mainDeck: null,
@@ -22,6 +26,17 @@ let Memento = {
     clickedCards: null,
     solvedCards: null,
     firstGame: true,
+
+};
+
+const litStar = String.fromCodePoint('0x2605');
+const fadedStar = String.fromCodePoint('0x2606');
+
+// These are just some singleton values for reference
+const Ratings = {
+    oneStar: '' + litStar + fadedStar + fadedStar,
+    twoStar: '' + litStar + litStar + fadedStar,
+    threeStar: '' + litStar + litStar + litStar,
 };
 
 
@@ -30,8 +45,8 @@ let Memento = {
 Utility functions
 */
 
+// This function formats a number as a 2-digit string.
 function formatNum(aNum) {
-    // This formats a number as a 2-digit string.
     let formatted;
     if (aNum < 10) {
         formatted = '' + '0';
@@ -45,12 +60,77 @@ function formatNum(aNum) {
 
 
 /*
+Build The Page Framework
+*/
+
+// This just lets us separate our buildPageBody from everything else so we only ever
+// run that function once per page load.
+function initialBuild() {
+    buildPageBody();
+    return buildTitleCard();
+}
+
+// This function builds the contents of the page body.
+function buildPageBody() {
+    const pageBody = document.querySelector('body');
+    const bodyParts = document.createDocumentFragment();
+
+    bodyParts.appendChild(buildFirstHeader());
+    bodyParts.appendChild(buildFirstMain());
+
+    pageBody.appendChild(bodyParts);
+}
+
+// This function builds the header, which gets reused in every subsequent iteration.
+function buildFirstHeader() {
+    const newHeader = document.createElement('header');
+
+    const gameInfo = document.createElement('div');
+    gameInfo.id = 'game-info';
+
+    const turnCount = document.createElement('h3');
+    turnCount.classList.add('turn-count');
+    const timeElapsed = document.createElement('h3');
+    timeElapsed.classList.add('time-elapsed');
+    const liveRating = document.createElement('h3');
+    liveRating.classList.add('live-rating');
+
+    gameInfo.appendChild(turnCount);
+    gameInfo.appendChild(timeElapsed);
+    gameInfo.appendChild(liveRating);
+
+    newHeader.appendChild(gameInfo);
+
+    return newHeader;
+}
+
+// This function builds the main, which gets reused in every subsequent iteration.
+function buildFirstMain() {
+    // I think this is really it here. Hm.
+    const newMain = document.createElement('main');
+    return newMain;
+}
+
+
+
+/*
 Build The First Game
 */
 
-// Everything starts with buildTitleCard(), which we call at the end of this script.
+// This function assigns some references in Memento that shouldn't need
+// to be reassigned unless we do a full reset to title card.
+function buildMementoAssignments() {
+    Memento.pageBody = document.querySelector('body');
+    Memento.pageHeader = document.querySelector('header');
+    Memento.turnCountZone = document.querySelector('.turn-count');
+    Memento.timeElapsedZone = document.querySelector('.time-elapsed');
+    Memento.liveRatingZone = document.querySelector('.live-rating');
+    Memento.pageMain = document.querySelector('main');
+}
+
+// This function builds the title card, the first thing you see when you load the page
 function buildTitleCard() {
-    buildPageBody();
+    buildMementoAssignments();
 
     const titleZone = document.createDocumentFragment();
 
@@ -77,57 +157,20 @@ function buildTitleCard() {
     Memento.pageMain.appendChild(titleZone);
 }
 
-function buildPageBody() {
-    Memento.pageBody = document.querySelector('body');
-    const bodyParts = document.createDocumentFragment();
-
-    bodyParts.appendChild(buildFirstHeader());
-    bodyParts.appendChild(buildFirstMain());
-
-    Memento.pageBody.appendChild(bodyParts);
-
-    Memento.pageHeader = document.querySelector('header');
-    Memento.turnCountZone = document.querySelector('.turn-count');
-    Memento.timeElapsedZone = document.querySelector('.time-elapsed');
-    Memento.pageMain = document.querySelector('main');
-}
-
-function buildFirstHeader() {
-    const newHeader = document.createElement('header');
-
-    const gameInfo = document.createElement('div');
-    gameInfo.id = 'game-info';
-
-    const turnCount = document.createElement('h3');
-    turnCount.classList.add('turn-count');
-    const timeElapsed = document.createElement('h3');
-    timeElapsed.classList.add('time-elapsed');
-
-    gameInfo.appendChild(turnCount);
-    gameInfo.appendChild(timeElapsed);
-
-    newHeader.appendChild(gameInfo);
-
-    return newHeader;
-}
-
-function buildFirstMain() {
-    // I think this is really it here. Hm.
-    const newMain = document.createElement('main');
-    return newMain;
-}
-
 
 
 /*
 Build Every Game Beyond The First
 */
 
+// This function builds the whole new game and then draws it.
 function buildNewGame() {
     // We don't have to do much right here anymore because a lot of the do-overs
     // are handled further down.
     Memento.turnsTaken = 0;
+    Memento.tookTurn = false;
     Memento.lastTime = '00:00';
+    Memento.gameRating = Ratings.threeStar;
 
     // We use sets here because they're much easier to use than arrays for things like
     // testing inclusion and guaranteeing exclusivity of the values we push inside.
@@ -137,14 +180,17 @@ function buildNewGame() {
     return drawTheGame(buildTheGame());
 }
 
+// This function builds the game data.
 function buildTheGame() {
     buildGameInfo();
     return buildBigCard();
 }
 
+// This function builds the info in the header.
 function buildGameInfo() {
-    Memento.turnCountZone.textContent = 'Turns taken: 0';
-    Memento.timeElapsedZone.textContent = `Time elapsed: ${Memento.lastTime}`;
+    redrawTurnsTaken();
+    redrawTimeElapsed();
+    redrawLiveRating();
 
     // We're gonna set this on a timer here so that the clock starts ticking
     // around about when the cards finish fading in.
@@ -157,6 +203,22 @@ function buildGameInfo() {
     }, 1000);
 }
 
+// This function calculates the number of turns taken this game and triggers
+// a redraw if a turn has been taken.
+function calculateTurnsTaken() {
+    if (Memento.tookTurn) {
+        Memento.turnsTaken += 1;
+        Memento.tookTurn = false;
+        redrawTurnsTaken();
+    }
+}
+
+// This function redraws the turns-taken count.
+function redrawTurnsTaken() {
+    Memento.turnCountZone.textContent = 'Turns taken: ' + Memento.turnsTaken.toString();
+}
+
+// This function calculates how much time has elapsed since the game started.
 function calculateTimeElapsed() {
     const elapsed = Memento.timeElapsedZone;
     const timeStart = Memento.startTime;
@@ -173,10 +235,48 @@ function calculateTimeElapsed() {
     }
 }
 
+// This function redraws the elapsed time.
 function redrawTimeElapsed() {
     Memento.timeElapsedZone.textContent = `Time elapsed: ${Memento.lastTime}`;
 }
 
+// This function calculates your current rating as you play and redraws it
+// if necessary.
+function calculateLiveRating() {
+    /* 
+    This is based off of some research I did.
+    For a number of pairs N:
+    The lower limit for turns taken to solve all pairs is N turns. This is if
+    you flip a match every turn.
+    The functional limit for turns taken to solve all pairs is 2N turns. This
+    is based on the idea that if you start the game by flipping every card,
+    then with a perfect memory, it should take you the same number of turns
+    to reveal each pair.
+    */
+    let rating = null;
+    if (Memento.turnsTaken > 24) {
+        // 1 star is if you take more than 3N turns.
+        rating = Ratings.oneStar;
+    } else if (Memento.turnsTaken > 16) {
+        // 2 stars is if you take more than 2N but less than 3N turns.
+        rating = Ratings.twoStar;
+    } else {
+        // 3 stars is if you take no more than 2N turns.
+        rating = Ratings.threeStar;
+    }
+
+    if (rating != Memento.gameRating) {
+        Memento.gameRating = rating;
+        redrawLiveRating();
+    }
+}
+
+// This function redraws the live rating as you play.
+function redrawLiveRating() {
+    Memento.liveRatingZone.textContent = `Current rating: ${Memento.gameRating}`;
+}
+
+// This function builds the whole big card.
 function buildBigCard() {
     const bigCardZone = document.createDocumentFragment();
 
@@ -196,6 +296,8 @@ function buildBigCard() {
     return bigCardZone;
 }
 
+// This function builds the back of the big card, which contains the game board.
+// The game functionally takes place on the back of a big card.
 function buildBigCardBack() {
     const bigBack = buildGameBoard();
     bigBack.classList.add('big-card-back');
@@ -205,6 +307,7 @@ function buildBigCardBack() {
     return bigBack;
 }
 
+// This function builds the game board, our visible 4x4 grid.
 function buildGameBoard() {
     Memento.mainDeck = buildNewDeck();
 
@@ -221,6 +324,8 @@ function buildGameBoard() {
     return theBoard;
 }
 
+// This function builds a new deck of cards. 
+// The deck contains 16 cards, 8 pairs of matching emojis.
 function buildNewDeck() {
     /*
     These are our emojis.
@@ -269,6 +374,7 @@ function buildNewDeck() {
     return shuffledDeck;
 }
 
+// This function builds a row of cards in our 4x4 grid.
 function buildCardRow(total, aRow) {
     let cnt = 0;
     while (cnt < 4) {
@@ -278,6 +384,9 @@ function buildCardRow(total, aRow) {
     return aRow;
 }
 
+// This function builds a single card.
+// A single card is a 'card-container', which has a child 'card',
+// which has the children 'card-back' and 'card-face'.
 function buildGameCard(cNum) {
     const newCard = document.createElement('div');
     let cardNum = formatNum(cNum);
@@ -305,6 +414,8 @@ function buildGameCard(cNum) {
     return newCard;
 }
 
+// This function builds the face of the big card.
+// The big card face contains the 'You win!' message and final rating.
 function buildBigCardFace() {
     const bigFace = document.createElement('div');
     bigFace.classList.add('big-card-face');
@@ -327,12 +438,15 @@ function buildBigCardFace() {
     return bigFace;
 }
 
+// This function draws the game.
+// It crams all of the page elements we've created into the document.
 function drawTheGame(bigCardZone) {
     if (!Memento.firstGame) {
         // If this isn't the first game, dump all the existing content.
         while (Memento.pageMain.hasChildNodes() === true) {
             Memento.pageMain.removeChild(Memento.pageMain.firstChild);
         }
+        removeResetButton();
     } else {
         // After we build all the game content, we fade out the title card.
         const titleCard = document.querySelector('.title-card');
@@ -349,6 +463,8 @@ function drawTheGame(bigCardZone) {
     }
 
     Memento.pageMain.appendChild(bigCardZone);
+
+    return addResetButton();
 }
 
 
@@ -357,27 +473,10 @@ function drawTheGame(bigCardZone) {
 Handling player interaction during the game
 */
 
+// This function handles our card flips on click.
 function handleCardFlip(cardEvent) {
-    // Obv, we have to handle all the various cases
-    eTarget = cardEvent.target.parentNode;
-    eTargetParent = eTarget.parentNode;
-
-    /*
-    A card conceptually has 3 states we track:
-    A card can be solved or unsolved.
-    A card can be clicked or unclicked.
-    A card can be face-up or face-down.
-
-    These states relate to each other in fundamental ways.
-    A card that is solved is always unclicked and face-up.
-    A card that is unsolved can be clicked/unclicked and face-up/face-down.
-    A card that is clicked is always face-up.
-    A card that is unclicked can be solved/unsolved and face-up/face-down.
-    A card that is face-up can be solved/unsolved and clicked/unclicked.
-    A card that is face-down is always unclicked and unsolved.
-    
-    If there was a prettier way for me to draw a finite state machine in text, I would.
-    */
+    const eTarget = cardEvent.target.parentNode;
+    const eTargetParent = eTarget.parentNode;
 
     // If they click in the margins, we don't handle that.
     // This is a failsafe in case of weirdness.
@@ -385,89 +484,111 @@ function handleCardFlip(cardEvent) {
         return;
     }
 
+    const parentId = eTargetParent.id;
+
     // What do we do if they click a card that is solved?
-    // Nothing, it remains unclicked and face-up.
-    if (Memento.solvedCards.has(eTargetParent.id)) {
+    if (Memento.solvedCards.has(parentId)) {
+        // Nothing, it remains unclicked and face-up.
         return;
     }
     // What do we do if they click a card that is unsolved?
     else {
         // ...and there are no other face-up unsolved cards?
-        // We make it clicked and face-up.
         if (Memento.clickedCards.size === 0) {
-            Memento.clickedCards.add(eTargetParent.id);
-            toggleFlippedState(eTarget);
+            handleClickWithZeroClickedCards(eTarget, parentId);
         }
-
         // ...and there is a face-up unsolved card?
         else if (Memento.clickedCards.size == 1) {
-            // ...and it's the card we clicked?
-            // We make it unclicked and face-down.
-            if (Memento.clickedCards.has(eTargetParent.id)) {
-                Memento.clickedCards.clear();
-                toggleFlippedState(eTarget);
-            }
-            // ...and it's not the card we clicked?
-            else {
-                const cidA = Memento.clickedCards.values().next().value;
-                const cidB = eTargetParent.id;
-                const cardA = document.getElementById(cidA).firstChild.querySelector('.card-face');
-                const cardB = eTarget.querySelector('.card-face');
-
-                // ...and it matches the card we clicked?
-                // We add them to solved and dump them from clicked.
-                if (cardA.textContent == cardB.textContent) {
-                    toggleFlippedState(eTarget);
-                    Memento.solvedCards.add(cidA);
-                    Memento.solvedCards.add(cidB);
-                    Memento.clickedCards.clear();
-                }
-                // ...and it doesn't match the other clicked card?
-                // We make it clicked and face-up.
-                else {
-                    Memento.clickedCards.add(eTargetParent.id);
-                    toggleFlippedState(eTarget);
-                }
-                Memento.turnsTaken += 1;
-            }
+            handleClickWithOneClickedCard(eTarget, parentId);
         }
         // ...and there are two face-up unsolved cards?
         else if (Memento.clickedCards.size == 2) {
-            // ...and one of them is the card we clicked?
-            // We make it unclicked and face-down.
-            if (Memento.clickedCards.has(eTargetParent.id)) {
-                Memento.clickedCards.delete(eTargetParent.id);
-                toggleFlippedState(eTarget);
-            }
-            // ...and neither of them are the card we clicked?
-            // We make the clicked cards unclicked and face-down,
-            // then we make the newly clicked card clicked and face-up.
-            else {
-                let cValues = Memento.clickedCards.values()
-                const cidA = cValues.next().value;
-                const cidB = cValues.next().value;
-                const cardA = document.getElementById(cidA).firstChild;
-                const cardB = document.getElementById(cidB).firstChild;
-                toggleFlippedState(cardA);
-                toggleFlippedState(cardB);
-                Memento.clickedCards.clear();
-                Memento.clickedCards.add(eTargetParent.id);
-                toggleFlippedState(eTarget);
-            }
+            handleClickWithTwoClickedCards(eTarget, parentId);
         }
     }
+    return finalizeCardFlip();
+}
 
-    Memento.turnCountZone.textContent = 'Turns taken: ' + Memento.turnsTaken.toString();
+// This function handles a click with 0 clicked, face-up cards.
+function handleClickWithZeroClickedCards(eTarget, parentId) {
+    // We make it clicked and face-up.
+    Memento.clickedCards.add(parentId);
+    toggleFlippedState(eTarget);
+}
 
-    // then we check to see if the game is over.
+// This function handles a click with 1 clicked, face-up card.
+function handleClickWithOneClickedCard(eTarget, parentId) {
+    // ...and it's the card we clicked?
+    if (Memento.clickedCards.has(parentId)) {
+        // We make it unclicked and face-down.
+        Memento.clickedCards.clear();
+        toggleFlippedState(eTarget);
+    }
+    // ...and it's not the card we clicked?
+    else {
+        const cidA = Memento.clickedCards.values().next().value;
+        const cidB = parentId;
+        const cardA = document.getElementById(cidA).firstChild.querySelector('.card-face');
+        const cardB = eTarget.querySelector('.card-face');
+
+        // ...and it matches the card we clicked?
+        if (cardA.textContent == cardB.textContent) {
+            // We add them to solved and dump them from clicked.
+            toggleFlippedState(eTarget);
+            Memento.solvedCards.add(cidA);
+            Memento.solvedCards.add(cidB);
+            Memento.clickedCards.clear();
+        }
+        // ...and it doesn't match the other clicked card?
+        else {
+            // We make it clicked and face-up.
+            Memento.clickedCards.add(parentId);
+            toggleFlippedState(eTarget);
+        }
+        Memento.tookTurn = true;
+    }
+}
+
+// This function handles a click with 2 clicked, face-up cards.
+function handleClickWithTwoClickedCards(eTarget, parentId) {
+    // ...and one of them is the card we clicked?
+    if (Memento.clickedCards.has(parentId)) {
+        // We make it unclicked and face-down.
+        Memento.clickedCards.delete(parentId);
+        toggleFlippedState(eTarget);
+    }
+    // ...and neither of them are the card we clicked?
+    else {
+        // We make the clicked cards unclicked and face-down,
+        // then we make the newly clicked card clicked and face-up.
+        let cValues = Memento.clickedCards.values()
+        const cidA = cValues.next().value;
+        const cidB = cValues.next().value;
+        const cardA = document.getElementById(cidA).firstChild;
+        const cardB = document.getElementById(cidB).firstChild;
+        toggleFlippedState(cardA);
+        toggleFlippedState(cardB);
+        Memento.clickedCards.clear();
+        Memento.clickedCards.add(parentId);
+        toggleFlippedState(eTarget);
+    }
+}
+
+// This function cleans up after handling our card flip.
+function finalizeCardFlip() {
+    calculateTurnsTaken();
+    calculateTimeElapsed();
+    calculateLiveRating();
+
+    // We finish by checking to see if the game is over.
     if (Memento.solvedCards.size === 16) {
         triggerGameWin();
     }
 }
 
+// This function toggles the flipped state of a card.
 function toggleFlippedState(eTarget) {
     /* 
-    This worked differently a fistful of edits ago.
     To get this dope fade-in/fade-out effect on click, we toggle the classes
     on the face and back of each card. One should always be is-up and one should
     always be is-down, and the two should never be the same class.
@@ -481,9 +602,11 @@ function toggleFlippedState(eTarget) {
     eTarget.querySelector('.card-face').classList.toggle('is-down');
 }
 
+// This function triggers a game win.
+// We clear the timer interval, calculate the final rating, and fade in the big-card-face.
 function triggerGameWin() {
     clearInterval(Memento.timeLoop);
-    calculateRating();
+    calculatePlayRating();
     document.querySelector('.big-card-back').classList.toggle('is-up');
     document.querySelector('.big-card-back').classList.toggle('is-down');
     document.querySelector('.big-card-face').classList.toggle('is-up');
@@ -491,29 +614,13 @@ function triggerGameWin() {
     document.querySelector('.big-card-face').addEventListener('click', restartGame);
 }
 
-function calculateRating() {
+// This function calculates your star rating.
+function calculatePlayRating() {
     const playRating = document.querySelector('.play-rating');
-    const litStar = String.fromCodePoint('0x2605');
-    const fadedStar = String.fromCodePoint('0x2606');
-
-    let rating = '' + litStar;
-    let star2;
-    let star3;
-    if (Memento.turnsTaken > 24) {
-        star2 = fadedStar;
-        star3 = fadedStar;
-    } else if (Memento.turnsTaken > 16) {
-        star2 = litStar;
-        star3 = fadedStar;
-    } else {
-        star2 = litStar;
-        star3 = litStar;
-    }
-
-    rating += star2 + star3;
-    playRating.textContent = rating;
+    playRating.textContent = Memento.gameRating;
 }
 
+// This function restarts the game.
 function restartGame() {
     buildNewGame();
 }
@@ -524,7 +631,83 @@ function restartGame() {
 Do The Dang Thing
 */
 
-buildTitleCard();
+initialBuild();
+
+
+
+
+/*
+Add This Reset Button That Defies The Reason Why Reset Functions Are Used In Games
+*/
+
+// This function adds this ridiculous reset button that was intentionally omitted from the
+// original submission because you don't give the player the option to reset in the middle of
+// a game that doesn't have a loss condition, you give them the option to reset the game after
+// it reaches a state they can't continue from. :|
+function addResetButton() {
+    const pageFooter = document.createElement('footer');
+
+    const resetButton = document.createElement('h3');
+    resetButton.classList.add('reset-button');
+    resetButton.textContent = "CLICK TO RESET THE GAME";
+    resetButton.addEventListener('click', restartEverything);
+
+    const theWholePage = document.querySelector('html');
+
+    pageFooter.appendChild(resetButton);
+    theWholePage.appendChild(pageFooter);
+
+}
+
+// This function removes the reset button when we do a full reset so that
+// it doesn't display with the title card.
+function removeResetButton() {
+    // Get rid of those dang buttons
+    document.querySelector('footer').remove();
+}
+
+// This function resets things to the same state they're in when you first
+// load the page.
+function restartEverything() {
+    if (Memento.timeLoop) {
+        clearInterval(Memento.timeLoop);
+    }
+
+    // just straight yoinking a bunch of this to down here
+    while (Memento.pageMain.hasChildNodes() === true) {
+        Memento.pageMain.removeChild(Memento.pageMain.firstChild);
+    }
+
+    Memento = {
+        pageBody: null,
+
+        pageHeader: null,
+
+        turnCountZone: null,
+        turnsTaken: null,
+        lastTurn: null,
+        tookTurn: null,
+
+        timeElapsedZone: null,
+        startTime: null,
+        lastTime: null,
+        timeLoop: null,
+
+        liveRatingZone: null,
+        gameRating: null,
+
+        pageMain: null,
+        mainDeck: null,
+        // The arrays in clickedCards and solvedCards should ONLY contain
+        // the ids of cards as strings, from 'card00' to 'card15'.
+        clickedCards: null,
+        solvedCards: null,
+        firstGame: true,
+    };
+
+    removeResetButton();
+    return buildTitleCard();
+}
 
 
 

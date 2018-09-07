@@ -39,12 +39,14 @@ High-level styles
 body,
 html,
 header,
-main {
+main,
+footer {
     margin: 0 auto;
 }
 
 header,
-body {
+body,
+footer {
     font-family: 'Special Elite', cursive;
     backface-visibility: hidden;
     box-sizing: border-box;
@@ -86,17 +88,28 @@ Title card
 }
 
 /*
-Header
+Header & Footer
 */
 
-header {
+header,
+footer {
+    background: transparent;
     color: #CCC;
     text-align: center;
 }
 
 .turn-count,
-.time-elapsed {
+.time-elapsed,
+.live-rating,
+.reset-button {
     text-shadow: 0 0 20px green;
+}
+
+.reset-button {
+    font-family: 'Special Elite', cursive;
+    display: block;
+    margin: 0 auto;
+    border: 0;
 }
 
 /*
